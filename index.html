@@ -419,12 +419,28 @@
       font-size: clamp(40px, 4.5vw, 64px); font-weight: 300; line-height: 1.0;
     }
     .formula-headline h2 em { font-style: italic; color: var(--amber); }
-    .formula-img { overflow: hidden; min-height: 340px; }
+    .formula-img {
+      overflow: hidden; min-height: 120px;
+      position: relative;
+    }
     .formula-img img {
       width: 100%; height: 100%; object-fit: cover; display: block;
+      object-position: center 88%;
       transition: transform .6s ease;
     }
-    .formula-img:hover img { transform: scale(1.04); }
+    .formula-img:hover img { transform: scale(1.03); }
+    /* Side vignette */
+    .formula-img::after {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(
+        to right,
+        rgba(17,16,9,0.55) 0%,
+        transparent 28%,
+        transparent 72%,
+        rgba(17,16,9,0.55) 100%
+      );
+    }
     .formula-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
     .ing {
       padding: 36px 32px;
@@ -756,7 +772,7 @@
       .ben-content { padding: 48px 28px; border-left: none; border-top: 1px solid var(--line); }
 
       .formula-top { grid-template-columns: 1fr; }
-      .formula-img { min-height: 55vw; }
+      .formula-img { min-height: 22vw; }
       .formula-headline { padding: 56px 28px; border-right: none; }
       .formula-grid { grid-template-columns: 1fr 1fr; }
       .ing { padding: 28px 20px; }
@@ -915,7 +931,7 @@
       .formula-top { grid-template-columns: 40% 60%; min-height: 420px; }
       .formula-headline { padding: 100px 88px; }
       .formula-headline h2 { font-size: clamp(52px, 5.5vw, 80px); }
-      .formula-img { min-height: 420px; }
+      .formula-img { min-height: 150px; }
       .formula-grid { grid-template-columns: repeat(6, 1fr); }
       .ing { border-bottom: none; padding: 52px 28px; }
       .ing:nth-child(3) { border-right: 1px solid rgba(244,237,227,0.08); }
@@ -1176,7 +1192,7 @@
         <h2 class="reveal" style="transition-delay:.1s">Key<br/><em>ingredients</em></h2>
       </div>
       <div class="formula-img reveal-img">
-        <img src="DSC055823.jpg" alt="MEOF serum" />
+        <img src="DSC05775 2.jpg" alt="MEOF serum" />
       </div>
     </div>
     <div class="formula-grid">
