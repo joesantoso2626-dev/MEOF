@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEOF — Hair Treatment Serum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      background: #111009;
+      overscroll-behavior: none;
+    }
+    :root {
+      --amber: #c8732a;
+      --amber-light: #d9894a;
+      --dark:  #111009;
+      --cream: #f4ede3;
+      --muted: #9a8a78;
+      --line:  rgba(200,115,42,0.18);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--cream);
+      color: var(--dark);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+      overscroll-behavior: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed; top: 0; left: 0; z-index: 9999;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: transform .15s ease;
+    }
+    .cursor img {
+      width: 36px; height: 36px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+      transition: width .2s ease, height .2s ease, opacity .2s;
+    }
+    .cursor.hovering img {
+      width: 48px; height: 48px;
+    }
+    /* hide ring — no longer used */
+    .cursor-ring { display: none; }
+
+    /* ── PAGE LOAD ── */
+    .page-loader {
+      position: fixed; inset: 0; z-index: 9000;
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .6s ease, visibility .6s ease;
+    }
+    .page-loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 300; letter-spacing: 10px;
+      color: var(--cream); opacity: 0;
+      animation: loaderFade 1.2s ease forwards;
+    }
+    @keyframes loaderFade {
+      0%   { opacity: 0; transform: translateY(12px); }
+      50%  { opacity: 1; transform: translateY(0); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── REVEAL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left {
+      opacity: 0; transform: translateX(-32px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-img {
+      opacity: 0; transform: scale(1.04);
+      transition: opacity .9s ease, transform .9s ease;
+    }
+    .reveal-img.visible { opacity: 1; transform: scale(1); }
+
+    /* ── NAV ── */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
+      height: 64px;
+      background: #f4ede3;
+      border-bottom: 1px solid rgba(200,115,42,0.18);
+      display: flex; align-items: center;
+      transition: transform .4s ease;
+    }
+    #navbar.hidden { transform: translateY(-100%); }
+
+    .nav-left  { width: 56px; display: flex; align-items: center; padding-left: 24px; flex-shrink: 0; }
+    .nav-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; }
+    .nav-right { margin-left: auto; display: flex; align-items: center; justify-content: flex-end; padding-right: 24px; flex-shrink: 0; }
+
+    /* Logo */
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 400; letter-spacing: 8px;
+      color: #111009; text-decoration: none;
+      display: flex; align-items: center;
+    }
+    .nav-logo img { height: 28px; display: block; }
+    .nav-logo-fallback {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 400; letter-spacing: 8px; color: #111009;
+    }
+
+    /* Language toggle */
+    .lang-toggle {
+      display: flex; align-items: center; gap: 4px;
+      border: none; background: transparent;
+    }
+    .lang-btn {
+      padding: 4px 2px;
+      font-size: 10px; font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; border: none; background: transparent;
+      color: #9a8a78; cursor: pointer;
+      transition: color .2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .lang-btn.active { color: #c8732a; }
+    .lang-btn:hover:not(.active) { color: #111009; }
+    .lang-sep {
+      font-size: 11px; color: rgba(200,115,42,0.3);
+      pointer-events: none; line-height: 1;
+    }
+
+    /* Hamburger — always visible */
+    .hamburger {
+      display: flex; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 1.5px; background: #111009;
+      transition: transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* ══ 1. HERO ══ */
+    #hero {
+      height: 100vh; display: grid; grid-template-columns: 1fr 1fr;
+      padding-top: 64px; overflow: hidden;
+    }
+
+    /* ── HERO PRODUCT STAGE ── */
+    .hero-img {
+      position: relative; overflow: hidden;
+      background: #0e0b07;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Sponsor-wall MEOF pattern */
+    .hero-bg-pattern {
+      position: absolute; inset: -10%;
+      display: flex; flex-direction: column; gap: 0;
+      pointer-events: none;
+      animation: patternDrift 30s linear infinite;
+      opacity: 1;
+    }
+    @keyframes patternDrift {
+      from { transform: translateY(0); }
+      to   { transform: translateY(calc(-50% / 2)); }
+    }
+    @keyframes shimmer {
+      0%   { transform: translateX(-120%); }
+      100% { transform: translateX(120%); }
+    }
+    @keyframes howtoDotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(200,115,42,0); }
+      50%       { transform: scale(1.3); opacity: .8; box-shadow: 0 0 0 5px rgba(200,115,42,0.15); }
+    }
+    @keyframes howtoLineSlide {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100%); }
+    }
+    @keyframes shopGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200,115,42,0); }
+      50%       { box-shadow: 0 0 28px 4px rgba(200,115,42,0.18); }
+    }
+    .hero-bg-row {
+      display: flex; white-space: nowrap;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 300; letter-spacing: 6px;
+      color: rgba(200,115,42,0.1);
+      padding: 8px 0;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .hero-bg-row.offset { transform: translateX(-88px); }
+    .hero-bg-row span { padding: 0 24px; }
+
+    /* Vignette over pattern */
+    .hero-vignette {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(14,11,7,0.65) 100%);
+      pointer-events: none; z-index: 1;
+    }
+
+    /* Amber glow behind product */
+    .hero-glow {
+      position: absolute; z-index: 2;
+      width: 55%; aspect-ratio: 1;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(ellipse, rgba(200,115,42,0.22) 0%, transparent 68%);
+      filter: blur(24px);
+      pointer-events: none;
+    }
+
+    /* Product */
+    .hero-product {
+      position: relative; z-index: 3;
+      width: min(64%, 310px);
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .hero-product img {
+      width: 100%; height: auto; display: block;
+      pointer-events: none;
+      filter:
+        drop-shadow(0 12px 40px rgba(0,0,0,0.8))
+        drop-shadow(0 0 80px rgba(200,115,42,0.25));
+      animation: productFloat 6s ease-in-out infinite;
+    }
+    @keyframes productFloat {
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-12px); }
+    }
+    /* Reflection */
+    .hero-product-ref {
+      width: 80%; margin-top: -2px;
+      overflow: hidden;
+      transform: scaleY(-1);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.15), transparent 50%);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.15), transparent 50%);
+      pointer-events: none;
+      max-height: 80px;
+    }
+    .hero-product-ref img {
+      width: 100%; height: auto; display: block;
+      pointer-events: none;
+    }
+    .hero-copy {
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 56px 60px 56px 64px;
+      background: var(--cream);
+      border-left: 1px solid var(--line);
+    }
+    /* Decorative large "3%" watermark */
+    .hero-copy::before {
+      content: '3%';
+      position: absolute; right: -16px; bottom: 40px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 220px; font-weight: 300; line-height: 1;
+      color: rgba(200,115,42,0.055);
+      pointer-events: none; user-select: none;
+      letter-spacing: -8px;
+    }
+
+    /* Eyebrow */
+    .eyebrow {
+      font-size: 9px; letter-spacing: 5px; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .eyebrow::before {
+      content: ''; flex-shrink: 0;
+      width: 28px; height: 1px; background: var(--amber);
+    }
+
+    /* Hero title — dramatic & large */
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(64px, 7vw, 108px); font-weight: 300; line-height: .88;
+      margin-bottom: 0; letter-spacing: -1px;
+    }
+    .hero-title em {
+      font-style: italic; color: var(--amber);
+      display: block;
+    }
+    /* Animated underline on italic word */
+    .hero-title em::after {
+      content: '';
+      display: block;
+      height: 2px;
+      background: linear-gradient(to right, var(--amber), transparent);
+      width: 0;
+      transition: width 1.2s ease .8s;
+    }
+    .hero-title.visible em::after { width: 85%; }
+
+    /* Stats row */
+    .hero-stats {
+      display: flex; gap: 0;
+      margin: 32px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-stat {
+      flex: 1; padding: 16px 0;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .hero-stat + .hero-stat {
+      border-left: 1px solid var(--line);
+      padding-left: 20px;
+    }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 300; line-height: 1;
+      color: var(--amber);
+    }
+    .stat-label {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Description */
+    .hero-desc {
+      font-size: 13px; line-height: 1.85; color: var(--muted);
+      max-width: 300px; margin-bottom: 36px;
+    }
+
+    /* CTA area */
+    .hero-cta { display: flex; align-items: center; gap: 24px; }
+    .btn-buy {
+      background: var(--dark); color: var(--cream); border: none;
+      padding: 15px 36px; font-size: 10px; font-weight: 500;
+      letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer;
+      position: relative; overflow: hidden;
+      flex-shrink: 0;
+    }
+    .btn-buy::after {
+      content: ''; position: absolute; inset: 0;
+      background: var(--amber);
+      transform: translateX(-101%);
+      transition: transform .38s ease;
+    }
+    .btn-buy:hover::after { transform: translateX(0); }
+    .btn-buy span { position: relative; z-index: 1; }
+    .hero-cta-note {
+      font-size: 10px; color: var(--muted); line-height: 1.6;
+      letter-spacing: .3px;
+    }
+
+    /* ══ 2. BENEFITS ══ */
+    #benefits { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+    .ben-img { overflow: hidden; position: relative; }
+    .ben-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .6s ease;
+    }
+    .ben-img:hover img { transform: scale(1.04); }
+    .ben-img::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 55%, var(--cream));
+      pointer-events: none;
+    }
+    .ben-content {
+      background: var(--cream);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 64px;
+      border-left: 1px solid var(--line);
+    }
+    .ben-content .eyebrow { justify-content: center; }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(48px, 5.5vw, 80px); font-weight: 300; line-height: 1.0;
+      margin-bottom: 44px; text-align: center;
+    }
+    .section-title em { font-style: italic; color: var(--amber); }
+    .ben-list { list-style: none; }
+    .ben-item {
+      display: flex; align-items: flex-start; gap: 20px;
+      padding: 22px 0; border-bottom: 1px solid var(--line);
+      transition: padding-left .3s ease;
+      cursor: default;
+    }
+    .ben-item:first-child { border-top: 1px solid var(--line); }
+    .ben-item:hover { padding-left: 8px; }
+    .ben-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 300; color: var(--amber);
+      flex-shrink: 0; width: 32px; line-height: 1;
+      transition: transform .3s;
+    }
+    .ben-item:hover .ben-num { transform: scale(1.1); }
+    .ben-text h4 { font-size: 13px; font-weight: 600; letter-spacing: .5px; margin-bottom: 4px; }
+    .ben-text p { font-size: 12px; line-height: 1.75; color: var(--muted); }
+
+    /* ══ 3. FORMULA ══ */
+    #formula { background: var(--dark); color: var(--cream); }
+    .formula-top {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid rgba(244,237,227,0.08);
+    }
+    .formula-headline {
+      padding: 80px 64px;
+      border-right: 1px solid rgba(244,237,227,0.08);
+      display: flex; flex-direction: column; justify-content: center;
+      align-items: center; text-align: center;
+    }
+    .formula-headline .eyebrow { color: var(--amber); justify-content: center; }
+    .formula-headline .eyebrow::before { background: var(--amber); }
+    .formula-headline h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 4.5vw, 64px); font-weight: 300; line-height: 1.0;
+    }
+    .formula-headline h2 em { font-style: italic; color: var(--amber); }
+    .formula-img { overflow: hidden; min-height: 340px; }
+    .formula-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .6s ease;
+    }
+    .formula-img:hover img { transform: scale(1.04); }
+    .formula-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .ing {
+      padding: 36px 32px;
+      border-right: 1px solid rgba(244,237,227,0.08);
+      border-bottom: 1px solid rgba(244,237,227,0.08);
+      position: relative; overflow: hidden;
+      transition: background .35s ease;
+      cursor: default;
+    }
+    .ing::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: var(--amber);
+      transform: scaleY(0); transform-origin: bottom;
+      transition: transform .35s ease;
+    }
+    .ing:hover { background: rgba(200,115,42,0.07); }
+    .ing:hover::before { transform: scaleY(1); }
+    .ing:nth-child(3), .ing:nth-child(6) { border-right: none; }
+    .ing-num { font-size: 10px; letter-spacing: 2px; color: var(--amber); margin-bottom: 12px; }
+    .ing h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px; font-weight: 400; margin-bottom: 4px;
+    }
+    .ing-origin {
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--amber); opacity: .6; margin-bottom: 12px;
+    }
+    .ing p { font-size: 12px; line-height: 1.75; color: rgba(244,237,227,0.45); }
+
+    /* ══ 4. SHOP ══ */
+    #shop { display: grid; grid-template-columns: 1fr 1fr; min-height: 92vh; }
+    .shop-img { overflow: hidden; position: relative; }
+    .shop-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      object-position: 50% 32%; display: block;
+      transition: transform .8s ease;
+    }
+    .shop-img:hover img { transform: scale(1.04); }
+
+    .shop-content {
+      position: relative; overflow: hidden;
+      background: var(--dark);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 72px 56px;
+      text-align: center;
+    }
+    /* Radial glow center */
+    .shop-content::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 480px; height: 480px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,115,42,0.1) 0%, transparent 68%);
+      pointer-events: none;
+      animation: shopGlow 5s ease-in-out infinite;
+    }
+    /* Thin amber line top & bottom */
+    .shop-content::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,115,42,0.35), transparent);
+      pointer-events: none;
+    }
+
+    /* Decorative ring */
+    .shop-ring {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 340px; height: 340px; border-radius: 50%;
+      border: 1px solid rgba(200,115,42,0.07);
+      pointer-events: none;
+      animation: ringPulse 4s ease-in-out infinite;
+    }
+    .shop-ring2 {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 520px; height: 520px; border-radius: 50%;
+      border: 1px solid rgba(200,115,42,0.04);
+      pointer-events: none;
+      animation: ringPulse 4s ease-in-out infinite .8s;
+    }
+    @keyframes ringPulse {
+      0%, 100% { opacity: .5; transform: translate(-50%, -50%) scale(1); }
+      50%       { opacity: 1;  transform: translate(-50%, -50%) scale(1.03); }
+    }
+
+    .shop-top { position: relative; z-index: 1; width: 100%; }
+    .shop-content .eyebrow {
+      color: rgba(200,115,42,0.75); justify-content: center;
+    }
+    .shop-content .eyebrow::before { display: none; }
+    .shop-content h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(58px, 6vw, 96px); font-weight: 300; line-height: .9;
+      color: var(--cream); margin: 20px 0 22px;
+      position: relative; z-index: 1; letter-spacing: -1px;
+    }
+    .shop-content h2 em { font-style: italic; color: var(--amber); }
+    .shop-desc {
+      font-size: 12px; line-height: 1.9; letter-spacing: .5px;
+      color: rgba(244,237,227,0.35);
+      max-width: 220px; margin: 0 auto 48px;
+      position: relative; z-index: 1;
+    }
+
+    /* Divider */
+    .shop-divider {
+      width: 40px; height: 1px; background: rgba(200,115,42,0.35);
+      margin: 0 auto 44px; position: relative; z-index: 1;
+    }
+
+    /* Shop buttons container */
+    .shop-btns {
+      display: flex; flex-direction: column; gap: 22px;
+      width: 100%; max-width: 320px; position: relative; z-index: 1;
+      align-items: stretch;
+    }
+    .btn-group-label {
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(244,237,227,0.22); margin-bottom: 10px;
+      text-align: center;
+    }
+
+    /* Shopee — premium dark style */
+    .btn-shopee {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0; background: transparent; color: var(--cream);
+      text-decoration: none; border: 1px solid rgba(244,237,227,0.12);
+      position: relative; overflow: hidden;
+      transition: border-color .3s, transform .25s;
+    }
+    .btn-shopee::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--amber);
+      transform: translateX(-101%);
+      transition: transform .4s ease;
+    }
+    .btn-shopee:hover { border-color: var(--amber); transform: translateY(-1px); }
+    .btn-shopee:hover::before { transform: translateX(0); }
+    /* Shimmer sweep on hover */
+    .btn-shopee::after {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transform: translateX(-120%);
+      transition: none; pointer-events: none;
+    }
+    .btn-shopee:hover::after {
+      animation: shimmer .6s ease forwards;
+    }
+    .shopee-left {
+      display: flex; align-items: center; gap: 16px;
+      position: relative; z-index: 1;
+      padding: 18px 22px; flex: 1;
+    }
+    .shopee-icon-wrap {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(238,77,45,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .3s;
+    }
+    .btn-shopee:hover .shopee-icon-wrap { background: rgba(255,255,255,0.2); }
+    .shopee-label { display: flex; flex-direction: column; gap: 2px; }
+    .shopee-sub { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(244,237,227,0.4); }
+    .shopee-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; letter-spacing: 1px; }
+    .shopee-arrow {
+      font-size: 18px; padding: 18px 22px;
+      border-left: 1px solid rgba(244,237,227,0.1);
+      position: relative; z-index: 1;
+      transition: transform .25s, border-color .3s;
+    }
+    .btn-shopee:hover .shopee-arrow { transform: translateX(4px); border-color: transparent; }
+
+    /* Social icons */
+    .social-row { display: flex; gap: 10px; }
+    .btn-social {
+      width: 52px; height: 52px;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; border: 1px solid rgba(244,237,227,0.12);
+      transition: border-color .25s, transform .25s, background .25s;
+    }
+    .btn-social:hover { transform: translateY(-3px); border-color: var(--amber); }
+    .btn-ig  { background: transparent; }
+    .btn-ig svg rect, .btn-ig svg circle { stroke: rgba(244,237,227,0.7); }
+    .btn-ig svg circle:last-child { fill: rgba(244,237,227,0.7); }
+    .btn-ig:hover { background: rgba(255,255,255,0.08); }
+    .btn-tiktok { background: transparent; }
+    .btn-tiktok:hover { background: rgba(255,255,255,0.06); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      position: relative; overflow: hidden;
+    }
+    /* Subtle amber gradient line at top */
+    footer::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--amber), transparent);
+      opacity: .35;
+    }
+    /* Faint MEOF watermark */
+    footer::after {
+      content: 'MEOF';
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 160px; font-weight: 300; letter-spacing: 20px;
+      color: rgba(244,237,227,0.025); pointer-events: none; user-select: none;
+      white-space: nowrap;
+    }
+
+    .foot-main {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 52px 64px 40px;
+      position: relative; z-index: 1;
+    }
+    .foot-brand { display: flex; flex-direction: column; gap: 10px; }
+    .foot-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 300; letter-spacing: 12px;
+      color: rgba(244,237,227,0.85);
+    }
+    .foot-tagline {
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(244,237,227,0.25);
+    }
+
+    .foot-center { text-align: center; }
+    .foot-amber-dot {
+      display: block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--amber); margin: 0 auto; opacity: .6;
+    }
+
+    .foot-nav { display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+    .foot-links { display: flex; gap: 28px; }
+    .foot-links a {
+      color: rgba(244,237,227,0.3); text-decoration: none;
+      transition: color .25s; letter-spacing: 2.5px; font-size: 9px; text-transform: uppercase;
+    }
+    .foot-links a:hover { color: var(--amber); }
+    .foot-socials { display: flex; gap: 14px; }
+    .foot-social-link {
+      width: 30px; height: 30px; border: 1px solid rgba(244,237,227,0.1);
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; transition: border-color .25s, transform .25s;
+    }
+    .foot-social-link:hover { border-color: var(--amber); transform: translateY(-2px); }
+
+    .foot-bottom {
+      border-top: 1px solid rgba(244,237,227,0.05);
+      display: flex; align-items: center; justify-content: center;
+      padding: 18px 64px;
+      position: relative; z-index: 1;
+    }
+    .foot-copy {
+      font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: rgba(244,237,227,0.18);
+    }
+
+    /* ── NAV MENU OVERLAY ── */
+    .mobile-menu {
+      display: flex; position: fixed; inset: 64px 0 0;
+      background: var(--cream); z-index: 499;
+      flex-direction: column; align-items: center; justify-content: center; gap: 0;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: all; }
+    .mobile-menu a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 8vw, 52px); font-weight: 300; color: var(--dark);
+      text-decoration: none; letter-spacing: 4px;
+      padding: 20px 40px; width: 100%; text-align: center;
+      border-bottom: 1px solid var(--line);
+      transition: color .2s, background .2s;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity .3s ease, transform .3s ease, color .2s, background .2s;
+    }
+    .mobile-menu a:first-child { border-top: 1px solid var(--line); }
+    .mobile-menu a:hover { color: var(--amber); background: rgba(200,115,42,0.04); }
+    .mobile-menu.open a:nth-child(1) { opacity:1; transform:none; transition-delay:.08s; }
+    .mobile-menu.open a:nth-child(2) { opacity:1; transform:none; transition-delay:.15s; }
+    .mobile-menu.open a:nth-child(3) { opacity:1; transform:none; transition-delay:.22s; }
+    .mobile-menu-foot {
+      position: absolute; bottom: 48px;
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Cara Pakai section */
+    #how-to-use { display: block; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .nav-left { padding-left: 16px; }
+      .nav-right { padding-right: 16px; }
+
+      #hero { grid-template-columns: 1fr; height: auto; }
+      .hero-img { height: 72vw; min-height: 300px; }
+      .hero-product { width: 48%; }
+      .hero-bg-row { font-size: 22px; }
+      .hero-copy { padding: 40px 24px; border-left: none; border-top: 1px solid var(--line); }
+      .hero-copy::before { font-size: 140px; right: -8px; bottom: 20px; }
+      .hero-title { font-size: clamp(52px, 13vw, 80px); }
+      .hero-stats { margin: 24px 0; }
+      .stat-num { font-size: 24px; }
+      .hero-cta { flex-wrap: wrap; gap: 16px; }
+      .hero-price { font-size: 18px; }
+      .hero-trust { margin-top: 24px; padding-top: 20px; }
+      .trust-num { font-size: 18px; }
+      .trust-divider { margin: 0 16px; }
+
+      #benefits { grid-template-columns: 1fr; }
+      .ben-img { height: 60vw; }
+      .ben-img::after { background: linear-gradient(to bottom, transparent 60%, var(--cream)); }
+      .ben-content { padding: 48px 28px; border-left: none; border-top: 1px solid var(--line); }
+
+      .formula-top { grid-template-columns: 1fr; }
+      .formula-img { min-height: 55vw; }
+      .formula-headline { padding: 56px 28px; border-right: none; }
+      .formula-grid { grid-template-columns: 1fr 1fr; }
+      .ing { padding: 28px 20px; }
+      .ing:nth-child(3) { border-right: 1px solid rgba(244,237,227,0.08); }
+      .ing:nth-child(2), .ing:nth-child(4), .ing:nth-child(6) { border-right: none; }
+
+      /* ── HOW TO USE — mobile (identik dengan benefits) ── */
+      .howto-inner { display: block; }
+      .howto-headline {
+        padding: 56px 28px 20px;
+        border-right: none; border-bottom: none;
+        display: flex; flex-direction: column; align-items: center; text-align: center;
+      }
+      .howto-headline::after { display: none; }
+      .howto-headline .eyebrow { margin-bottom: 16px; }
+      .howto-headline h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(38px, 11vw, 56px); font-weight: 300;
+        color: var(--dark); line-height: 1.05; margin-bottom: 0;
+      }
+      .howto-headline h2 em { font-style: italic; color: var(--amber); }
+      .howto-headline p { display: none; }
+      .howto-steps {
+        display: flex; flex-direction: column;
+        padding: 12px 28px 0; gap: 0;
+      }
+      .howto-step {
+        display: flex; align-items: flex-start; gap: 20px;
+        padding: 22px 0; border-bottom: 1px solid var(--line);
+        border-right: none; background: transparent;
+        transition: padding-left .25s; cursor: default;
+      }
+      .howto-step:first-child { border-top: 1px solid var(--line); }
+      .howto-step:hover { padding-left: 8px; }
+      .howto-step-num {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 28px; font-weight: 300; color: var(--amber);
+        line-height: 1.1; min-width: 42px; flex-shrink: 0;
+        display: block; margin-bottom: 0; transition: transform .3s;
+      }
+      .howto-step:hover .howto-step-num { transform: scale(1.1); }
+      .howto-step-text { flex: 1; }
+      .howto-step h4 { font-size: 13px; font-weight: 600; letter-spacing: .5px; margin-bottom: 4px; color: var(--dark); }
+      .howto-step p { font-size: 12px; line-height: 1.75; color: var(--muted); }
+      .howto-tip {
+        padding: 16px 28px 40px; background: var(--cream);
+        border: none; display: flex; align-items: center; gap: 12px;
+      }
+      .howto-tip-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); flex-shrink: 0; animation: howtoDotPulse 2.4s ease-in-out infinite; }
+      .howto-tip p { font-size: 11px; letter-spacing: .3px; color: var(--muted); line-height: 1.8; }
+      .howto-tip strong { color: var(--amber); }
+
+      /* Shop proof — mobile */
+      .shop-proof { gap: 16px; margin-bottom: 12px; justify-content: center; }
+      .shop-price { font-size: 22px; }
+
+      #shop { grid-template-columns: 1fr; }
+      .shop-img { height: 65vw; min-height: 300px; }
+      .shop-content { padding: 56px 28px; }
+      .shop-btns { max-width: 100%; }
+
+      .foot-main { grid-template-columns: 1fr; gap: 28px; padding: 40px 28px 28px; text-align: center; }
+      .foot-brand { align-items: center; }
+      .foot-center { display: none; }
+      .foot-nav { align-items: center; }
+      .foot-bottom { flex-direction: column; gap: 8px; padding: 18px 28px; text-align: center; }
+    }
+
+    @media (max-width: 400px) {
+      .hero-copy, .ben-content, .shop-content { padding: 40px 20px; }
+      .formula-headline, .ing { padding: 24px 16px; }
+      .formula-grid { grid-template-columns: 1fr; }
+      .ing:nth-child(3), .ing:nth-child(2), .ing:nth-child(4) { border-right: none; }
+    }
+
+    /* Shop proof block */
+    .shop-proof { display: flex; align-items: center; gap: 24px; margin-bottom: 16px; position: relative; z-index: 1; }
+    .shop-price-block { display: flex; flex-direction: column; gap: 4px; text-align: right; }
+    .shop-price { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--cream); line-height: 1; }
+    .shop-price-note { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(244,237,227,0.35); }
+    .shop-proof-sep { width: 1px; height: 36px; background: rgba(244,237,227,0.1); flex-shrink: 0; }
+    .shop-proof-stats { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+    .shop-proof-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--amber); line-height: 1; }
+    .shop-proof-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(244,237,227,0.35); }
+
+    /* Hero trust bar & price */
+    .hero-price-wrap { display: flex; flex-direction: column; gap: 3px; }
+    .hero-price { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--dark); line-height: 1; }
+    .hero-trust { display: flex; margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); gap: 0; align-items: stretch; }
+    .trust-item { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .trust-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--amber); line-height: 1; }
+    .trust-bpom { font-size: 10px; font-weight: 600; letter-spacing: 3px; color: var(--dark); padding: 3px 8px; border: 1px solid var(--line); display: inline-block; width: fit-content; }
+    .trust-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+    .trust-divider { width: 1px; background: var(--line); margin: 0 28px; flex-shrink: 0; }
+
+    /* ══ PC / DESKTOP LAYOUT (min 641px) ══ */
+    @media (min-width: 641px) {
+
+      /* ── NAV ── */
+      .nav-left { padding-left: 40px; }
+      .nav-right { padding-right: 40px; }
+
+      /* ── HERO ── */
+      #hero { grid-template-columns: 55% 45%; }
+      .hero-product { width: min(72%, 380px); }
+      .hero-copy { padding: 80px 80px 80px 88px; }
+      .hero-copy::before { font-size: 300px; right: -24px; bottom: 30px; letter-spacing: -10px; }
+      .hero-title { font-size: clamp(72px, 7.5vw, 124px); }
+      .hero-stats { margin: 40px 0; }
+      .stat-num { font-size: 34px; }
+      .hero-desc { font-size: 14px; max-width: 360px; margin-bottom: 44px; }
+      .btn-buy { padding: 17px 44px; font-size: 11px; }
+
+      /* ── BENEFITS — full-width editorial layout ── */
+      #benefits { display: block; min-height: auto; }
+
+      .ben-img {
+        height: 52vh; min-height: 380px;
+        position: relative;
+      }
+      .ben-img::after {
+        background: linear-gradient(to bottom, transparent 35%, var(--cream) 88%);
+      }
+      .ben-content {
+        border-left: none;
+        padding: 8px 100px 100px;
+        align-items: center;
+      }
+      .section-title {
+        font-size: clamp(52px, 6vw, 88px);
+        margin-bottom: 0; padding-bottom: 64px;
+        border-bottom: 1px solid var(--line);
+        width: 100%;
+      }
+      .ben-list {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        width: 100%;
+        border-top: none;
+      }
+      .ben-item {
+        flex-direction: column; gap: 18px;
+        padding: 48px 36px;
+        border-bottom: none;
+        border-right: 1px solid var(--line);
+        border-top: 1px solid var(--line);
+      }
+      .ben-item:first-child { border-top: 1px solid var(--line); }
+      .ben-item:last-child { border-right: none; }
+      .ben-item:hover { padding-left: 36px; padding-top: 40px; }
+      .ben-num { width: auto; font-size: 48px; line-height: 1; }
+      .ben-text h4 { font-size: 14px; letter-spacing: .8px; margin-bottom: 10px; }
+      .ben-text p { font-size: 13px; line-height: 1.85; }
+
+      /* ── FORMULA ── */
+      .formula-top { grid-template-columns: 40% 60%; min-height: 420px; }
+      .formula-headline { padding: 100px 88px; }
+      .formula-headline h2 { font-size: clamp(52px, 5.5vw, 80px); }
+      .formula-img { min-height: 420px; }
+      .formula-grid { grid-template-columns: repeat(6, 1fr); }
+      .ing { border-bottom: none; padding: 52px 28px; }
+      .ing:nth-child(3) { border-right: 1px solid rgba(244,237,227,0.08); }
+      .ing:nth-child(6) { border-right: none; }
+      .ing h4 { font-size: 22px; }
+      .ing p { font-size: 13px; line-height: 1.8; }
+
+      /* ── HOW TO USE — desktop (original layout) ── */
+      .howto-inner {
+        display: grid; grid-template-columns: 1fr 2fr;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .howto-headline {
+        padding: 100px 80px;
+        border-right: 1px solid var(--line);
+        display: flex; flex-direction: column; justify-content: center;
+        align-items: flex-start; text-align: left;
+        position: relative; overflow: hidden;
+      }
+      .howto-headline::after {
+        content: '使'; display: block;
+        position: absolute; right: -20px; bottom: -10px;
+        font-size: 240px; font-weight: 300; line-height: 1;
+        color: rgba(200,115,42,0.04); pointer-events: none; user-select: none;
+      }
+      .howto-headline .eyebrow { margin-bottom: 24px; }
+      .howto-headline h2 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(44px, 4.5vw, 68px); font-weight: 300;
+        line-height: 1.0; margin-bottom: 24px; color: var(--dark);
+      }
+      .howto-headline h2 em { font-style: italic; color: var(--amber); }
+      .howto-headline p { display: block; font-size: 12px; line-height: 1.9; color: var(--muted); max-width: 260px; }
+      .howto-steps {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        padding: 0;
+      }
+      .howto-step {
+        display: block;
+        padding: 64px 48px;
+        border-right: 1px solid var(--line);
+        border-top: none; border-bottom: none;
+        transition: background .3s; cursor: default;
+      }
+      .howto-step:first-child { border-top: none; }
+      .howto-step:last-child { border-right: none; }
+      .howto-step:hover { background: rgba(200,115,42,0.04); padding-left: 48px; }
+      .howto-step-num {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 72px; font-weight: 300; line-height: 1;
+        color: rgba(200,115,42,0.15); margin-bottom: 24px;
+        display: block; min-width: unset; flex-shrink: unset;
+        transition: none;
+      }
+      .howto-step:hover .howto-step-num { transform: none; }
+      .howto-step-text { display: block; }
+      .howto-step h4 {
+        font-size: 13px; font-weight: 600; letter-spacing: .5px;
+        margin-bottom: 12px; color: var(--dark); text-transform: uppercase;
+      }
+      .howto-step p { font-size: 13px; line-height: 1.85; color: var(--muted); }
+      .howto-tip {
+        padding: 24px 80px; background: rgba(200,115,42,0.06);
+        border-bottom: 1px solid var(--line);
+        display: flex; align-items: center; gap: 16px;
+      }
+      .howto-tip-dot { width: 6px; height: 6px; animation: none; }
+      .howto-tip p { font-size: 11px; letter-spacing: 1px; color: var(--muted); }
+      .howto-tip strong { color: var(--amber); font-weight: 500; }
+
+      /* ── SHOP ── */
+      #shop { grid-template-columns: 48% 52%; min-height: 96vh; }
+      .shop-content h2 { font-size: clamp(64px, 6.5vw, 104px); }
+      .shop-btns { max-width: 360px; }
+
+      /* ── FOOTER ── */
+      .foot-main { padding: 72px 100px 56px; }
+      .foot-logo { font-size: 32px; letter-spacing: 14px; }
+      .foot-tagline { font-size: 10px; letter-spacing: 4px; }
+      .foot-links a { font-size: 10px; letter-spacing: 3px; }
+      .foot-bottom { padding: 22px 100px; }
+    }
+
+    /* ── REDUCED MOTION ── */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-left, .reveal-img { opacity: 1; transform: none; transition: none; }
+      .hero-img img { transform: scale(1); transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor">
+    <img src="logo.png" alt=""
+         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 60 20%22><text y=%2216%22 font-family=%22serif%22 font-size=%2214%22 fill=%22%23c8732a%22 letter-spacing=%224%22>MEOF</text></svg>'" />
+  </div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- PAGE LOADER -->
+  <div class="page-loader" id="loader">
+    <span class="loader-logo">MEOF</span>
+  </div>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-left">
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav-center">
+      <a href="#" class="nav-logo" id="navLogo">
+        <img src="logo.png" alt="MEOF"
+             onload="this.style.display='block';document.getElementById('navLogoText').style.display='none'"
+             onerror="this.style.display='none';document.getElementById('navLogoText').style.display='block'" />
+        <span class="nav-logo-fallback" id="navLogoText">MEOF</span>
+      </a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+        <span class="lang-sep">/</span>
+        <button class="lang-btn" id="btnID" onclick="setLang('id')">ID</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- NAV MENU OVERLAY -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#benefits" onclick="closeMobile()" data-en="Benefits" data-id="Manfaat">Benefits</a>
+    <a href="#formula" onclick="closeMobile()" data-en="Formula" data-id="Formula">Formula</a>
+    <a href="#shop" onclick="closeMobile()" data-en="Shop" data-id="Beli">Shop</a>
+    <div class="mobile-menu-foot">MEOF © 2025</div>
+  </div>
+
+  <!-- 1. HERO -->
+  <section id="hero">
+    <div class="hero-img reveal-img">
+      <!-- Sponsor-wall background -->
+      <div class="hero-bg-pattern" id="heroBgPattern"></div>
+      <div class="hero-vignette"></div>
+      <div class="hero-glow"></div>
+      <!-- Product -->
+      <div class="hero-product">
+        <img src="product-spin.png" alt="MEOF Hair Serum" id="heroImg" />
+        <div class="hero-product-ref">
+          <img src="product-spin.png" alt="" />
+        </div>
+      </div>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow reveal" style="transition-delay:.1s"
+         data-en="Professional Hair Treatment Serum"
+         data-id="Serum Perawatan Rambut Profesional">Professional Hair Treatment Serum</p>
+
+      <h1 class="hero-title reveal" style="transition-delay:.2s"
+          data-en="Your hair.<br/><em>Reborn.</em>"
+          data-id="Rambutmu.<br/><em>Terlahir baru.</em>">Your hair.<br/><em>Reborn.</em></h1>
+
+      <!-- Stats -->
+      <div class="hero-stats reveal" style="transition-delay:.28s">
+        <div class="hero-stat">
+          <span class="stat-num">3%</span>
+          <span class="stat-label" data-en="European Larch" data-id="European Larch">European Larch</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num">30<small style="font-size:.45em">ml</small></span>
+          <span class="stat-label" data-en="Volume" data-id="Volume">Volume</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-num">30<small style="font-size:.45em">d</small></span>
+          <span class="stat-label" data-en="Results" data-id="Hasil nyata">Results</span>
+        </div>
+      </div>
+
+      <p class="hero-desc reveal" style="transition-delay:.34s"
+         data-en="Engineered to strengthen, restore, and transform hair from within."
+         data-id="Diformulasikan untuk memperkuat, memulihkan, dan mentransformasi rambut dari dalam.">Engineered to strengthen, restore, and transform hair from within.</p>
+
+      <div class="hero-cta reveal" style="transition-delay:.42s">
+        <button class="btn-buy" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
+          <span data-en="Shop Now" data-id="Beli Sekarang">Shop Now</span>
+        </button>
+        <div class="hero-price-wrap">
+          <span class="hero-price">Rp259.000</span>
+          <span class="hero-cta-note" data-en="30ml · Free shipping" data-id="30ml · Gratis ongkir">30ml · Free shipping</span>
+        </div>
+      </div>
+
+      <!-- Desktop-only trust bar -->
+      <div class="hero-trust reveal" style="transition-delay:.52s">
+        <div class="trust-item">
+          <span class="trust-num">5.0★</span>
+          <span class="trust-label" data-en="100% satisfied buyers" data-id="100% pembeli puas">100% satisfied buyers</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-num">52</span>
+          <span class="trust-label" data-en="Verified reviews" data-id="Ulasan terverifikasi">Verified reviews</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-bpom">BPOM</span>
+          <span class="trust-label">NA18241002252</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. BENEFITS -->
+  <section id="benefits">
+    <div class="ben-img reveal-img">
+      <img src="DSC05800.jpg" alt="MEOF Serum" />
+    </div>
+    <div class="ben-content">
+      <p class="eyebrow reveal" data-en="What It Does" data-id="Apa yang Dilakukan">What It Does</p>
+      <h2 class="section-title reveal" style="transition-delay:.1s" data-en="Four ways<br/>it <em>transforms</em>" data-id="Empat cara<br/>ia <em>mengubah</em>">Four ways<br/>it <em>transforms</em></h2>
+      <ul class="ben-list">
+        <li class="ben-item reveal" style="transition-delay:.15s">
+          <span class="ben-num">01</span>
+          <div class="ben-text">
+            <h4 data-en="Deep Hydration" data-id="Hidrasi Mendalam">Deep Hydration</h4>
+            <p data-en="Locks in moisture for up to 72 hours. No more dry, brittle strands." data-id="Mengunci kelembapan hingga 72 jam. Tidak ada lagi rambut kering dan rapuh.">Locks in moisture for up to 72 hours. No more dry, brittle strands.</p>
+          </div>
+        </li>
+        <li class="ben-item reveal" style="transition-delay:.22s">
+          <span class="ben-num">02</span>
+          <div class="ben-text">
+            <h4 data-en="Breakage Shield" data-id="Pelindung Kerusakan">Breakage Shield</h4>
+            <p data-en="Makes each strand up to 3× more resistant to breakage and split ends." data-id="Membuat setiap helai rambut hingga 3× lebih tahan terhadap patah dan bercabang.">Makes each strand up to 3× more resistant to breakage and split ends.</p>
+          </div>
+        </li>
+        <li class="ben-item reveal" style="transition-delay:.29s">
+          <span class="ben-num">03</span>
+          <div class="ben-text">
+            <h4 data-en="Mirror Shine" data-id="Kilau Cermin">Mirror Shine</h4>
+            <p data-en="Smooths the cuticle for glass-like, luminous shine that lasts all day." data-id="Menghaluskan kutikula untuk kilau bening seperti kaca yang tahan sepanjang hari.">Smooths the cuticle for glass-like, luminous shine that lasts all day.</p>
+          </div>
+        </li>
+        <li class="ben-item reveal" style="transition-delay:.36s">
+          <span class="ben-num">04</span>
+          <div class="ben-text">
+            <h4 data-en="Growth Boost" data-id="Percepat Pertumbuhan">Growth Boost</h4>
+            <p data-en="Visibly denser, faster-growing hair in 30 days." data-id="Rambut terlihat lebih lebat dan tumbuh lebih cepat dalam 30 hari.">Visibly denser, faster-growing hair in 30 days.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. FORMULA -->
+  <section id="formula">
+    <div class="formula-top">
+      <div class="formula-headline">
+        <p class="eyebrow reveal">Inside the Bottle</p>
+        <h2 class="reveal" style="transition-delay:.1s">Key<br/><em>ingredients</em></h2>
+      </div>
+      <div class="formula-img reveal-img">
+        <img src="DSC055823.jpg" alt="MEOF serum" />
+      </div>
+    </div>
+    <div class="formula-grid">
+      <div class="ing reveal" style="transition-delay:.05s">
+        <p class="ing-num">01</p>
+        <h4>European Larch</h4>
+        <p class="ing-origin">Alps, Europe</p>
+        <p>Activates dormant follicles and reduces hair loss.</p>
+      </div>
+      <div class="ing reveal" style="transition-delay:.1s">
+        <p class="ing-num">02</p>
+        <h4>Argan Oil</h4>
+        <p class="ing-origin">Morocco</p>
+        <p>Deep nourishment, frizz control, extraordinary shine.</p>
+      </div>
+      <div class="ing reveal" style="transition-delay:.15s">
+        <p class="ing-num">03</p>
+        <h4>Hydrolyzed Keratin</h4>
+        <p class="ing-origin">Biotech</p>
+        <p>Repairs and rebuilds hair structure from inside out.</p>
+      </div>
+      <div class="ing reveal" style="transition-delay:.2s">
+        <p class="ing-num">04</p>
+        <h4>Biotin Complex</h4>
+        <p class="ing-origin">Lab-Derived</p>
+        <p>Thicker, faster-growing strands in weeks.</p>
+      </div>
+      <div class="ing reveal" style="transition-delay:.25s">
+        <p class="ing-num">05</p>
+        <h4>Hyaluronic Acid</h4>
+        <p class="ing-origin">Lab-Derived</p>
+        <p>Optimal hydration for suppleness and strength.</p>
+      </div>
+      <div class="ing reveal" style="transition-delay:.3s">
+        <p class="ing-num">06</p>
+        <h4>Rosemary Stem Cell</h4>
+        <p class="ing-origin">Mediterranean</p>
+        <p>Shields damage, reactivates dormant follicles.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO USE (desktop only) -->
+  <section id="how-to-use">
+    <div class="howto-inner">
+      <div class="howto-headline reveal-left">
+        <span class="eyebrow" data-en="Cara Pakai" data-id="Cara Pakai">Cara Pakai</span>
+        <h2><em data-en="How to" data-id="Cara">How to</em><br><span data-en="Use It" data-id="Menggunakannya">Use It</span></h2>
+        <p data-en="For visible results, consistency is key. Apply daily for a minimum of 3 months." data-id="Untuk hasil yang terlihat, konsistensi adalah kuncinya. Gunakan setiap hari minimal 3 bulan.">For visible results, consistency is key. Apply daily for a minimum of 3 months.</p>
+      </div>
+      <div class="howto-steps">
+        <div class="howto-step reveal" style="transition-delay:.1s">
+          <span class="howto-step-num">01</span>
+          <div class="howto-step-text">
+            <h4 data-en="Apply to Scalp" data-id="Oleskan ke Kulit Kepala">Apply to Scalp</h4>
+            <p data-en="Part your hair and apply directly to the roots. Use at least 1ml (one full pipette) per application." data-id="Pisahkan rambut dan oleskan langsung ke akar. Gunakan minimal 1ml (satu pipet penuh) setiap pemakaian.">Part your hair and apply directly to the roots. Use at least 1ml (one full pipette) per application.</p>
+          </div>
+        </div>
+        <div class="howto-step reveal" style="transition-delay:.2s">
+          <span class="howto-step-num">02</span>
+          <div class="howto-step-text">
+            <h4 data-en="Massage Gently" data-id="Pijat Perlahan">Massage Gently</h4>
+            <p data-en="Massage from roots to tips to ensure even absorption into the scalp." data-id="Pijat dari akar ke ujung untuk memastikan penyerapan merata ke kulit kepala.">Massage from roots to tips to ensure even absorption into the scalp.</p>
+          </div>
+        </div>
+        <div class="howto-step reveal" style="transition-delay:.3s">
+          <span class="howto-step-num">03</span>
+          <div class="howto-step-text">
+            <h4 data-en="No Rinse" data-id="Tidak Perlu Bilas">No Rinse</h4>
+            <p data-en="Leave it in. Use twice daily — morning and evening — for best results." data-id="Biarkan meresap. Gunakan dua kali sehari — pagi dan malam — untuk hasil terbaik.">Leave it in. Use twice daily — morning and evening — for best results.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="howto-tip">
+      <div class="howto-tip-dot"></div>
+      <p data-en="<strong>Pro tip:</strong> Apply before styling. MEOF serum is lightweight and non-greasy — it won't weigh your hair down." data-id="<strong>Tips pro:</strong> Oleskan sebelum menata rambut. Serum MEOF ringan dan tidak berminyak — tidak akan memberatkan rambut Anda."><strong>Pro tip:</strong> Apply before styling. MEOF serum is lightweight and non-greasy — it won't weigh your hair down.</p>
+    </div>
+  </section>
+
+  <!-- 4. SHOP -->
+  <section id="shop">
+    <div class="shop-img reveal-img">
+      <img src="DSC05331-1.jpg" alt="MEOF model" />
+    </div>
+    <div class="shop-content">
+
+      <!-- Decorative rings -->
+      <div class="shop-ring"></div>
+      <div class="shop-ring2"></div>
+
+      <!-- Heading block -->
+      <div class="shop-top">
+        <h2 class="reveal" style="transition-delay:.08s"
+            data-en="Shop<br/>where<br/><em>you are.</em>"
+            data-id="Beli di<br/>mana<br/><em>kamu berada.</em>">Shop<br/>where<br/><em>you are.</em></h2>
+      </div>
+
+      <!-- Price + Social proof (desktop only) -->
+      <div class="shop-proof reveal" style="transition-delay:.14s">
+        <div class="shop-price-block">
+          <span class="shop-price">Rp259.000</span>
+          <span class="shop-price-note" data-en="30ml · Free shipping" data-id="30ml · Gratis ongkir">30ml · Free shipping</span>
+        </div>
+        <div class="shop-proof-sep"></div>
+        <div class="shop-proof-stats">
+          <span class="shop-proof-num">5.0★</span>
+          <span class="shop-proof-label" data-en="52 verified reviews" data-id="52 ulasan terverifikasi">52 verified reviews</span>
+        </div>
+      </div>
+
+      <!-- Divider line -->
+      <div class="shop-divider reveal" style="transition-delay:.2s"></div>
+
+      <!-- Buttons -->
+      <div class="shop-btns">
+
+        <!-- Shopee -->
+        <div class="reveal" style="transition-delay:.25s">
+          <p class="btn-group-label" data-en="Marketplace" data-id="Marketplace">Marketplace</p>
+          <a href="https://shopee.co.id/meof.hair" target="_blank" class="btn-shopee">
+            <span class="shopee-left">
+              <span class="shopee-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2C9.24 2 7 4.24 7 7H5C5 3.13 8.13 0 12 0s7 3.13 7 7h-2c0-2.76-2.24-5-5-5z" fill="currentColor"/>
+                  <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="9" cy="21" r="1.2" fill="currentColor"/>
+                  <circle cx="15" cy="21" r="1.2" fill="currentColor"/>
+                </svg>
+              </span>
+              <span class="shopee-label">
+                <span class="shopee-sub" data-en="Buy now on" data-id="Beli sekarang di">Buy now on</span>
+                <span class="shopee-name">Shopee</span>
+              </span>
+            </span>
+            <span class="shopee-arrow">→</span>
+          </a>
+        </div>
+
+        <!-- Social -->
+        <div class="reveal" style="transition-delay:.33s">
+          <p class="btn-group-label" data-en="Social Media" data-id="Media Sosial">Social Media</p>
+          <div class="social-row" style="justify-content:center;">
+            <a href="https://www.instagram.com/reel/meof_id" target="_blank" class="btn-social btn-ig" title="Instagram">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="2" width="20" height="20" rx="5.5" stroke="rgba(244,237,227,0.65)" stroke-width="1.6"/>
+                <circle cx="12" cy="12" r="4" stroke="rgba(244,237,227,0.65)" stroke-width="1.6"/>
+                <circle cx="17.2" cy="6.8" r="1.1" fill="rgba(244,237,227,0.65)"/>
+              </svg>
+            </a>
+            <a href="https://www.tiktok.com/discover/meof-indonesia" target="_blank" class="btn-social btn-tiktok" title="TikTok">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="rgba(244,237,227,0.7)">
+                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.26 8.26 0 004.84 1.55V6.79a4.85 4.85 0 01-1.07-.1z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-main">
+      <!-- Brand -->
+      <div class="foot-brand">
+        <span class="foot-logo">MEOF</span>
+        <span class="foot-tagline" data-en="Professional Hair Treatment" data-id="Perawatan Rambut Profesional">Professional Hair Treatment</span>
+      </div>
+
+      <!-- Center dot -->
+      <div class="foot-center">
+        <span class="foot-amber-dot"></span>
+      </div>
+
+      <!-- Nav + socials -->
+      <div class="foot-nav">
+        <nav class="foot-links">
+          <a href="#" data-en="FAQ" data-id="FAQ">FAQ</a>
+          <a href="#" data-en="Contact" data-id="Kontak">Contact</a>
+          <a href="#shop" data-en="Shop" data-id="Beli">Shop</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="foot-bottom">
+      <span class="foot-copy">© 2025 MEOF. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <script>
+    // ── HERO SPONSOR-WALL PATTERN ──
+    const patternEl = document.getElementById('heroBgPattern');
+    const WORD = 'MEOF';
+    const ROWS = 22;
+    for (let i = 0; i < ROWS * 2; i++) {  // ×2 for seamless loop
+      const row = document.createElement('div');
+      row.className = 'hero-bg-row' + (i % 2 === 1 ? ' offset' : '');
+      // Fill row with enough repetitions
+      for (let j = 0; j < 14; j++) {
+        const s = document.createElement('span');
+        s.textContent = WORD;
+        row.appendChild(s);
+      }
+      patternEl.appendChild(row);
+    }
+
+    // ── PAGE LOADER ──
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+        // trigger hero reveal after load
+        document.querySelectorAll('#hero .reveal, #hero .reveal-img').forEach(el => {
+          el.classList.add('visible');
+        });
+        // hero image subtle zoom-out on load
+        const heroImg = document.getElementById('heroImg');
+        if (heroImg) heroImg.classList.add('loaded');
+      }, 900);
+    });
+
+    // ── CUSTOM CURSOR ──
+    const cursor = document.getElementById('cursor');
+    let cx = 0, cy = 0, tx = 0, ty = 0;
+
+    document.addEventListener('mousemove', e => {
+      tx = e.clientX; ty = e.clientY;
+    });
+
+    // Smooth lag follow
+    function animateCursor() {
+      cx += (tx - cx) * 0.14;
+      cy += (ty - cy) * 0.14;
+      cursor.style.left = cx + 'px';
+      cursor.style.top  = cy + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Grow on hover
+    document.querySelectorAll('a, button, .ben-item, .ing').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+    });
+
+    // Hide on touch devices
+    if ('ontouchstart' in window) {
+      document.body.style.cursor = 'auto';
+      cursor.style.display = 'none';
+    }
+
+    // ── SCROLL-TRIGGERED REVEALS ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-img').forEach(el => {
+      // Hero items already handled above; skip them
+      if (!el.closest('#hero')) observer.observe(el);
+    });
+
+
+    // ── NAV HIDE/SHOW ON SCROLL ──
+    const navbar = document.getElementById('navbar');
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const curr = window.scrollY;
+      if (curr > lastScroll && curr > 80) {
+        navbar.classList.add('hidden');
+      } else {
+        navbar.classList.remove('hidden');
+      }
+      lastScroll = curr;
+    }, { passive: true });
+
+    // ── MOBILE MENU ──
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+    function closeMobile() {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    }
+
+    // ── LANGUAGE TOGGLE ──
+    let currentLang = 'en';
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+      document.getElementById('btnID').classList.toggle('active', lang === 'id');
+
+      document.querySelectorAll('[data-en]').forEach(el => {
+        const text = el.getAttribute('data-' + lang);
+        if (!text) return;
+        // Use innerHTML for elements that may contain HTML tags
+        if (text.includes('<')) {
+          el.innerHTML = text;
+        } else {
+          el.textContent = text;
+        }
+      });
+    }
+
+    // ── SMOOTH ANCHOR SCROLL ──
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href');
+        const target = document.querySelector(id);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

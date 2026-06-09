@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" width="160" height="48">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&amp;display=swap');
+    </style>
+  </defs>
+  <!-- Letter spacing M E O F -->
+  <text
+    x="50%"
+    y="32"
+    text-anchor="middle"
+    font-family="'Cormorant Garamond', 'Georgia', serif"
+    font-size="26"
+    font-weight="300"
+    letter-spacing="10"
+    fill="#111009"
+  >MEOF</text>
+  <!-- Amber dot accent under O -->
+  <circle cx="80" cy="42" r="2" fill="#c8732a"/>
+</svg>
